@@ -18,10 +18,10 @@ Once the installation process is complete, we can import the `ClickHouseClient`
 ```javascript
 import { ClickHouseClient } from '@depyronick/clickhouse-client';
 
-const analyticsServer = new ClickHouseClient([{
+const analyticsServer = new ClickHouseClient({
   host: '127.0.0.1',
   password: '7h3ul71m473p4555w0rd'
-}]);
+});
 
 // you can create multiple clients
 const chatServer = new ClickHouseClient({
