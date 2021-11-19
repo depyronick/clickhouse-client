@@ -15,7 +15,7 @@ $ npm i --save @depyronick/clickhouse-client
 ### Importing the module
 Once the installation process is complete, we can import the `ClickHouseClient` 
 
-```typescript
+```javascript
 import { ClickHouseClient } from '@depyronick/clickhouse-client';
 
 const analyticsServer = new ClickHouseClient([{
@@ -29,31 +29,30 @@ const chatServer = new ClickHouseClient([{
       password: '7h3ul71m473p4555w0rd'
 }]);
 ```
-`new ClickHouseClient(options: **[ClickHouseOptions](https://github.com/depyronick/nestjs-clickhouse/blob/main/lib/interfaces/ClickHouseModuleOptions.ts "ClickHouseOptions")**)` will create a ClickHouse client with the specified connection options. See **[ClickHouseOptions](https://github.com/depyronick/nestjs-clickhouse/blob/main/lib/interfaces/ClickHouseModuleOptions.ts "ClickHouseOptions")** object for more information.
-
+`new ClickHouseClient(options: ClickHouseOptions)` will create a ClickHouse client with the specified connection options. See **[ClickHouseOptions](https://github.com/depyronick/clickhouse-client/blob/main/src/client/interfaces/ClickHouseClientOptions.ts "ClickHouseOptions")** object for more information.
 
 There are two methods to interact with the server:
 
-### `ClickHouseClient.query<T>(query: string): Observable<T>`
+#### `ClickHouseClient.query<T>(query: string): Observable<T>`
 
-```typescript
+```javascript
 this
-      .analyticsServer
-      .query("SELECT * FROM visits LIMIT 10")
-      .subscribe({
-        error: (err: any): void => {
-          // called when an error occurred during query
-        },
-        next: (row): void => {
-          // called for each row
-        },
-        complete: (): void => {
-          // called when stream is completed
-        }
+    .analyticsServer
+    .query("SELECT * FROM visits LIMIT 10")
+    .subscribe({
+      error: (err) => {
+        // called when an error occurred during query
+      },
+      next: (row) => {
+        // called for each row
+      },
+      complete: () => {
+        // called when stream is completed
+      }
 })
 ```
 
-### `ClickHouseClient.insert<T>(table: string, data: T[]): Observable<any>`
+#### `ClickHouseClient.insert<T>(table: string, data: T[]): Observable<any>`
 
 The `insert` method accepts two inputs. 
 - `table` is the name of the table that you'll be inserting data to. 
@@ -62,24 +61,24 @@ The `insert` method accepts two inputs.
 
 ```typescript
 this
-      .analyticsServer
-      .insert("visits", [{
-        timestamp: new Date().getTime(),
-        ip: '127.0.0.1',
-        os: 'OSX',
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/95.0.4638.69 Safari/537.36',
-        version: "1.0.0"
-      }])
-      .subscribe({
-        error: (err: any): void => {
-          // called when an error occurred during insert
-        },
-        next: (): void => {
-          // currently next does not emits anything for inserts
-        },
-        complete: (): void => {
-          // called when insert is completed
-        }
+    .analyticsServer
+    .insert("visits", [{
+      timestamp: new Date().getTime(),
+      ip: '127.0.0.1',
+      os: 'OSX',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/95.0.4638.69 Safari/537.36',
+      version: "1.0.0"
+    }])
+    .subscribe({
+      error: (err) => {
+        // called when an error occurred during insert
+      },
+      next: () => {
+        // currently next does not emits anything for inserts
+      },
+      complete: () => {
+        // called when insert is completed
+      }
 })
 ```
 
@@ -90,11 +89,6 @@ this
 - Planning to implement TCP protocol, if ClickHouse decides to [documentate](https://clickhouse.com/docs/en/interfaces/tcp/ "documentate") it.
 - Planning to implement inserts with streams.
 - This library supports http response compressions such as brotli, gzip and deflate.
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
 ## Stay in touch
 
 - Author - [Ali Demirci](https://github.com/depyronick)
