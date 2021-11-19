@@ -17,6 +17,7 @@ $ npm i --save @depyronick/clickhouse-client
   - [`ClickHouseClient.query<T>(query: string): Observable<T>`](https://github.com/depyronick/clickhouse-client#clickhouseclientquerytquery-string-observablet)
   - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<any>`](https://github.com/depyronick/clickhouse-client#clickhouseclientinsertttable-string-data-t-observableany)
   - [`ClickHouseClient.ping(timeout: number = 3000): Promise<boolean>`](https://github.com/depyronick/clickhouse-client#clickhouseclientpingtimeout-number--3000-promiseboolean)
+- [Notes](https://github.com/depyronick/clickhouse-client#notes)
 
 ### Importing the module
 
