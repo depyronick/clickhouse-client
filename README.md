@@ -12,6 +12,12 @@ $ npm i --save @depyronick/clickhouse-client
 
 ## Quick Start
 
+- [Importing the module](https://github.com/depyronick/clickhouse-client#importing-the-module)
+- [Methods](https://github.com/depyronick/clickhouse-client#methods)
+  - [`ClickHouseClient.query<T>(query: string): Observable<T>`](https://github.com/depyronick/clickhouse-client#clickhouseclientquerytquery-string-observablet)
+  - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<any>`](https://github.com/depyronick/clickhouse-client#clickhouseclientinsertttable-string-data-t-observableany)
+  - [`ClickHouseClient.ping(timeout: number = 3000): Promise<boolean>`](https://github.com/depyronick/clickhouse-client#clickhouseclientpingtimeout-number--3000-promiseboolean)
+
 ### Importing the module
 
 Once the installation process is complete, you can import the `ClickHouseClient`
@@ -33,8 +39,9 @@ const chatServer = new ClickHouseClient({
   password: '7h3ul71m473p4555w0rd'
 });
 ```
-
 `new ClickHouseClient(options: ClickHouseOptions)` will create a ClickHouse client with the specified connection options. See **[ClickHouseOptions](https://github.com/depyronick/clickhouse-client/blob/main/src/client/interfaces/ClickHouseClientOptions.ts 'ClickHouseOptions')** object for more information.
+
+### Methods
 
 #### `ClickHouseClient.query<T>(query: string): Observable<T>`
 
