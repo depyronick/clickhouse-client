@@ -27,15 +27,7 @@ export class ClickHouseClient {
      * Prepare request options
      */
     private _getRequestOptions(query: string, withoutFormat: boolean = false): AxiosRequestConfig<any> {
-        let url = '';
-        switch (this.options.protocol) {
-            case ClickHouseConnectionProtocol.HTTP:
-                url = `http://${this.options.host}:${this.options.port}`;
-                break;
-            case ClickHouseConnectionProtocol.HTTPS:
-                url = `https://${this.options.host}:${this.options.port}`;
-                break;
-        }
+        let url = this._getUrl();
 
         if (!withoutFormat) {
             query = `${query.trimEnd()} FORMAT ${this.options.format}`;
@@ -89,6 +81,18 @@ export class ClickHouseClient {
         }
 
         return headers;
+    }
+
+    /**
+     * Get ClickHouse HTTP Interface URL
+     */
+    private _getUrl() {
+        switch (this.options.protocol) {
+            case ClickHouseConnectionProtocol.HTTP:
+                return `http://${this.options.host}:${this.options.port}`;
+            case ClickHouseConnectionProtocol.HTTPS:
+                return `https://${this.options.host}:${this.options.port}`;
+        }
     }
 
     /**
@@ -186,6 +190,32 @@ export class ClickHouseClient {
                 .catch(reason => {
                     subscriber.error(reason);
                     this.options.logger.error(reason);
+                })
+        });
+    }
+
+    /**
+     * Pings the clickhouse server
+     * 
+     * @param timeout timeout in milliseconds, defaults to 3000.
+     */
+    public ping(timeout: number = 3000) {
+        return new Promise<boolean>((resolve, reject) => {
+            axios
+                .get(`${this._getUrl()}/ping`, {
+                    timeout
+                })
+                .then((response) => {
+                    if (response && response.data) {
+                        if (response.data == 'Ok.\n') {
+                            return resolve(true);
+                        }
+                    }
+
+                    return resolve(false);
+                })
+                .catch((reason) => {
+                    return reject(reason);
                 })
         });
     }
