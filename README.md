@@ -19,15 +19,15 @@ Once the installation process is complete, we can import the `ClickHouseClient`
 import { ClickHouseClient } from '@depyronick/clickhouse-client';
 
 const analyticsServer = new ClickHouseClient([{
-      host: '127.0.0.1',
-      password: '7h3ul71m473p4555w0rd'
+  host: '127.0.0.1',
+  password: '7h3ul71m473p4555w0rd'
 }]);
 
 // you can create multiple clients
-const chatServer = new ClickHouseClient([{
-      host: '127.0.0.2',
-      password: '7h3ul71m473p4555w0rd'
-}]);
+const chatServer = new ClickHouseClient({
+  host: '127.0.0.2',
+  password: '7h3ul71m473p4555w0rd'
+});
 ```
 `new ClickHouseClient(options: ClickHouseOptions)` will create a ClickHouse client with the specified connection options. See **[ClickHouseOptions](https://github.com/depyronick/clickhouse-client/blob/main/src/client/interfaces/ClickHouseClientOptions.ts "ClickHouseOptions")** object for more information.
 
