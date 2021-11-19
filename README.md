@@ -16,7 +16,9 @@ $ npm i --save @depyronick/clickhouse-client
 Once the installation process is complete, we can import the `ClickHouseClient` 
 
 ```javascript
-import { ClickHouseClient } from '@depyronick/clickhouse-client';
+const { ClickHouseClient } = require('@depyronick/clickhouse-client');
+// or:
+// import { ClickHouseClient } from '@depyronick/clickhouse-client';
 
 const analyticsServer = new ClickHouseClient({
   host: '127.0.0.1',
