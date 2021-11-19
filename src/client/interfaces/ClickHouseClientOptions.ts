@@ -106,6 +106,14 @@ export class ClickHouseClientOptions {
     public settings?: ClickHouseSettings = new ClickHouseSettings();
 
     /**
+     * Logger Instance
+     * 
+     * Default: console
+     * @note A logger instance must implement `Console` interface
+     */
+    public logger?: Console = console;
+
+    /**
      * ClickHouse Connection Options
      */
     constructor() {

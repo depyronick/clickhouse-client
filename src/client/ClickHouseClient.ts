@@ -15,18 +15,12 @@ import { ClickHouseClientOptions } from './interfaces/ClickHouseClientOptions';
 
 export class ClickHouseClient {
     /**
-     * NestJS Logger
-     */
-    private logger: Console = console;
-
-    /**
     * ClickHouse Service
     */
     constructor(
         private options: ClickHouseClientOptions
     ) {
         this.options = Object.assign(new ClickHouseClientOptions(), options);
-        console.log('op', options);
     }
 
     /**
@@ -107,7 +101,6 @@ export class ClickHouseClient {
                     this._getRequestOptions(query)
                 )
                 .then((response) => {
-                    console.log(response)
                     const stream: IncomingMessage = response.data;
 
                     if (this.options.format == ClickHouseDataFormat.JSON) {
@@ -130,7 +123,6 @@ export class ClickHouseClient {
                     }
                 })
                 .catch((reason) => {
-
                     if (reason && reason.response) {
                         let err: string = '';
 
@@ -141,14 +133,14 @@ export class ClickHouseClient {
                                 err += chunk.toString('utf8')
                             })
                             .on('end', () => {
-                                this.logger.error(err.trim());
+                                this.options.logger.error(err.trim());
                                 subscriber.error(err.trim());
 
                                 err = '';
                             })
                     } else {
+                        this.options.logger.error(reason);
                         subscriber.error(reason);
-                        this.logger.error(reason);
                     }
                 })
         })
@@ -193,7 +185,7 @@ export class ClickHouseClient {
                 })
                 .catch(reason => {
                     subscriber.error(reason);
-                    this.logger.error(reason);
+                    this.options.logger.error(reason);
                 })
         });
     }
