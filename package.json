@@ -1,11 +1,19 @@
 {
   "name": "@depyronick/clickhouse-client",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "ClickHouse Client for NodeJS.",
   "author": "depyronick",
   "private": false,
   "license": "MIT",
   "repository": "https://github.com/depyronick/clickhouse-client",
+  "keywords": [
+    "clickhouse",
+    "nodejs",
+    "typescript",
+    "nodejs-clickhouse",
+    "node-clickhouse",
+    "clickhouse-client"
+  ],
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
