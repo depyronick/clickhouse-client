@@ -1,6 +1,6 @@
 {
   "name": "@depyronick/clickhouse-client",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "ClickHouse Client for NodeJS.",
   "author": "depyronick",
   "private": false,
@@ -9,7 +9,7 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "postbuild": "cp package.json dist/",
+    "postbuild": "cp package.json README.md dist/",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
