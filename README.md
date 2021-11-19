@@ -13,10 +13,11 @@ $ npm i --save @depyronick/clickhouse-client
 ## Quick Start
 
 ### Importing the module
-Once the installation process is complete, we can import the `ClickHouseClient` 
+Once the installation process is complete, you can import the `ClickHouseClient` 
 
 ```javascript
 const { ClickHouseClient } = require('@depyronick/clickhouse-client');
+
 // or:
 // import { ClickHouseClient } from '@depyronick/clickhouse-client';
 
@@ -32,8 +33,6 @@ const chatServer = new ClickHouseClient({
 });
 ```
 `new ClickHouseClient(options: ClickHouseOptions)` will create a ClickHouse client with the specified connection options. See **[ClickHouseOptions](https://github.com/depyronick/clickhouse-client/blob/main/src/client/interfaces/ClickHouseClientOptions.ts "ClickHouseOptions")** object for more information.
-
-There are two methods to interact with the server:
 
 #### `ClickHouseClient.query<T>(query: string): Observable<T>`
 
