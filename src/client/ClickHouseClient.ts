@@ -96,9 +96,34 @@ export class ClickHouseClient {
     }
 
     /**
-     * Create a Readable Query Stream
+     * Promise based query
+     * @private
      */
-    public query<T = any>(query: string) {
+    private _queryPromise<T = any>(query: string) {
+        return new Promise<T[]>((resolve, reject) => {
+            const _data: T[] = [];
+
+            this
+                ._queryObservable<T>(query)
+                .subscribe({
+                    error: (error) => {
+                        return reject(error);
+                    },
+                    next: (row) => {
+                        _data.push(row);
+                    },
+                    complete: () => {
+                        return resolve(_data);
+                    }
+                });
+        });
+    }
+
+    /**
+     * Observable based query
+     * @private
+     */
+    private _queryObservable<T = any>(query: string) {
         return new Observable<T>(subscriber => {
             axios
                 .request(
@@ -148,6 +173,20 @@ export class ClickHouseClient {
                     }
                 })
         })
+    }
+
+    /**
+     * Observable based query
+     */
+    public query<T = any>(query: string) {
+        return this._queryObservable<T>(query);
+    }
+
+    /**
+     * Promise based query
+     */
+    public queryPromise<T = any>(query: string) {
+        return this._queryPromise<T>(query);
     }
 
     /**
