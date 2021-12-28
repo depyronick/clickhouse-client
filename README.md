@@ -15,6 +15,7 @@ $ npm i --save @depyronick/clickhouse-client
 - [Importing the module](https://github.com/depyronick/clickhouse-client#importing-the-module)
 - [Methods](https://github.com/depyronick/clickhouse-client#methods)
   - [`ClickHouseClient.query<T>(query: string): Observable<T>`](https://github.com/depyronick/clickhouse-client#clickhouseclientquerytquery-string-observablet)
+  - [`ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`](https://github.com/depyronick/clickhouse-client#clickhouseclientquerytquery-string-observablet)
   - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<any>`](https://github.com/depyronick/clickhouse-client#clickhouseclientinsertttable-string-data-t-observableany)
   - [`ClickHouseClient.ping(timeout: number = 3000): Promise<boolean>`](https://github.com/depyronick/clickhouse-client#clickhouseclientpingtimeout-number--3000-promiseboolean)
 - [Notes](https://github.com/depyronick/clickhouse-client#notes)
@@ -58,6 +59,20 @@ this.analyticsServer.query('SELECT * FROM visits LIMIT 10').subscribe({
     // called when stream is completed
   }
 });
+```
+
+#### `ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`
+
+```javascript
+this.analyticsServer.queryPromise('SELECT * FROM visits LIMIT 10').then((rows) => {
+  // all retrieved rows
+}).catch((err) => {
+  // called when an error occurred during query
+})
+
+// or
+
+const rows = await this.analyticsServer.queryPromise('SELECT * FROM visits LIMIT 10');
 ```
 
 #### `ClickHouseClient.insert<T>(table: string, data: T[]): Observable<any>`
