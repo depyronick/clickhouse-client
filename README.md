@@ -41,7 +41,10 @@ const chatServer = new ClickHouseClient({
   password: '7h3ul71m473p4555w0rd'
 });
 ```
-`new ClickHouseClient(options: ClickHouseOptions)` will create a ClickHouse client with the specified connection options. See **[ClickHouseOptions](https://github.com/depyronick/clickhouse-client/blob/main/src/client/interfaces/ClickHouseClientOptions.ts 'ClickHouseOptions')** object for more information.
+
+`new ClickHouseClient(options: ClickHouseOptions)` will create a ClickHouse client with the specified connection options.
+
+See **[ClickHouseOptions](https://github.com/depyronick/clickhouse-client/blob/main/src/client/interfaces/ClickHouseClientOptions.ts 'ClickHouseOptions')** object for more information.
 
 ### Methods
 
@@ -64,15 +67,20 @@ this.analyticsServer.query('SELECT * FROM visits LIMIT 10').subscribe({
 #### `ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`
 
 ```javascript
-this.analyticsServer.queryPromise('SELECT * FROM visits LIMIT 10').then((rows) => {
-  // all retrieved rows
-}).catch((err) => {
-  // called when an error occurred during query
-})
+this.analyticsServer
+  .queryPromise('SELECT * FROM visits LIMIT 10')
+  .then((rows) => {
+    // all retrieved rows
+  })
+  .catch((err) => {
+    // called when an error occurred during query
+  });
 
 // or
 
-const rows = await this.analyticsServer.queryPromise('SELECT * FROM visits LIMIT 10');
+const rows = await this.analyticsServer.queryPromise(
+  'SELECT * FROM visits LIMIT 10'
+);
 ```
 
 #### `ClickHouseClient.insert<T>(table: string, data: T[]): Observable<any>`

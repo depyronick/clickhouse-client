@@ -50,6 +50,8 @@ export class ClickHouseClient {
                 username: this.options.username,
                 password: this.options.password
             },
+            httpAgent: this.options.httpAgent,
+            httpsAgent: this.options.httpsAgent,
             transformResponse: (data: IncomingMessage) => {
                 if (this.options.compression == ClickHouseCompressionMethod.BROTLI) {
                     return data.pipe(zlib.createBrotliDecompress());
@@ -211,7 +213,9 @@ export class ClickHouseClient {
                         <AxiosRequestConfig>{
                             responseType: 'stream',
                             method: 'POST',
-                            data: _data
+                            data: _data,
+                            httpAgent: this.options.httpAgent,
+                            httpsAgent: this.options.httpsAgent
                         }
                     )
                 )
@@ -242,7 +246,9 @@ export class ClickHouseClient {
         return new Promise<boolean>((resolve, reject) => {
             axios
                 .get(`${this._getUrl()}/ping`, {
-                    timeout
+                    timeout,
+                    httpAgent: this.options.httpAgent,
+                    httpsAgent: this.options.httpsAgent
                 })
                 .then((response) => {
                     if (response && response.data) {
