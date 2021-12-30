@@ -4,6 +4,9 @@ import {
     ClickHouseDataFormat
 } from "../enums";
 
+import * as http from "http";
+import * as https from "https";
+
 export class ClickHouseSettings {
     /**
      * Enables or disables X-ClickHouse-Progress HTTP response headers in clickhouse-server responses.
@@ -79,11 +82,31 @@ export class ClickHouseClientOptions {
     public database?: string = "default";
 
     /**
-     * HTTP Inteface Protocol
+     * HTTP Interface Protocol
      * 
      * Default: HTTP
      */
     public protocol?: ClickHouseConnectionProtocol = ClickHouseConnectionProtocol.HTTP;
+
+    /**
+     * HTTP Agent
+     * 
+     * `httpAgent` define a custom agent to be used when performing http requests, in node.js. 
+     * This allows options to be added like `keepAlive` that are not enabled by default.
+     * 
+     * Default: `undefined`
+     */
+    public httpAgent?: http.Agent;
+
+    /**
+     * HTTPS Agent
+     * 
+     * `httpsAgent` define a custom agent to be used when performing https requests in node.js
+     * This allows options to be added like `keepAlive` that are not enabled by default.
+     * 
+     * Default: `undefined`
+     */
+    public httpsAgent?: https.Agent;
 
     /**
      * HTTP Interface Compression Method
