@@ -196,7 +196,7 @@ export class ClickHouseClient {
      * Insert data to table (Observable)
      */
     public insert<T = any>(table: string, data: T[]) {
-        return new Observable<any>(subscriber => {
+        return new Observable<void>(subscriber => {
             let query = `INSERT INTO ${table}`;
             let _data: any;
 
@@ -225,7 +225,9 @@ export class ClickHouseClient {
 
                     stream
                         .on('data', (data) => {
-                            subscriber.next(data);
+                            // currently nothing to do here 
+                            // clickhouse http interface returns an empty response 
+                            // with inserts
                         })
                         .on('end', () => {
                             subscriber.complete();
