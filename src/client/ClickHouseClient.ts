@@ -242,18 +242,18 @@ export class ClickHouseClient {
      * Insert data to table (Promise)
      */
     public insertPromise<T = any>(table: string, data: T[]) {
-        return new Promise<any[]>((resolve, reject) => {
-            const _data: any[] = [];
-
+        return new Promise<void>((resolve, reject) => {
             this.insert<T>(table, data).subscribe({
                 error: (error) => {
                     return reject(error);
                 },
                 next: (row) => {
-                    _data.push(row);
+                    // currently nothing to do here 
+                    // clickhouse http interface returns an empty response 
+                    // with inserts
                 },
                 complete: () => {
-                    return resolve(_data);
+                    return resolve();
                 }
             });
         });
