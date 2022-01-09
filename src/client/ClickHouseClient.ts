@@ -46,6 +46,7 @@ export class ClickHouseClient {
             url,
             params,
             responseType: 'stream',
+            method: 'POST',
             auth: {
                 username: this.options.username,
                 password: this.options.password
