@@ -18,8 +18,8 @@ $ npm i --save @depyronick/clickhouse-client
     - [`ClickHouseClient.query<T>(query: string): Observable<T>`](https://github.com/depyronick/clickhouse-client#clickhouseclientquerytquery-string-observablet)
     - [`ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`](https://github.com/depyronick/clickhouse-client/tree/1.0.6#clickhouseclientquerypromisetquery-string-promiset)
   - **Insert**
-    - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<void>`](https://github.com/depyronick/clickhouse-client)
-    - [`ClickHouseClient.insertPromise<T>(table: string, data: T[]): Promise<void>`](https://github.com/depyronick/clickhouse-client)
+    - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<void>`](https://github.com/depyronick/clickhouse-client#clickhouseclientinsertttable-string-data-t-observablevoid)
+    - [`ClickHouseClient.insertPromise<T>(table: string, data: T[]): Promise<void>`](https://github.com/depyronick/clickhouse-client/blob/main/README.md#clickhouseclientinsertpromisettable-string-data-t-promisevoid)
   - **Other**
     - [`ClickHouseClient.ping(timeout: number = 3000): Promise<boolean>`](https://github.com/depyronick/clickhouse-client#clickhouseclientpingtimeout-number--3000-promiseboolean)
 - [Notes](https://github.com/depyronick/clickhouse-client#notes)
