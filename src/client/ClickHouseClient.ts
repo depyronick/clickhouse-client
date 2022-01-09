@@ -193,7 +193,7 @@ export class ClickHouseClient {
     }
 
     /**
-     * Insert data to table
+     * Insert data to table (Observable)
      */
     public insert<T = any>(table: string, data: T[]) {
         return new Observable<any>(subscriber => {
@@ -235,6 +235,27 @@ export class ClickHouseClient {
                     subscriber.error(reason);
                     this.options.logger.error(reason);
                 })
+        });
+    }
+
+    /**
+     * Insert data to table (Promise)
+     */
+    public insertPromise<T = any>(table: string, data: T[]) {
+        return new Promise<any[]>((resolve, reject) => {
+            const _data: any[] = [];
+
+            this.insert<T>(table, data).subscribe({
+                error: (error) => {
+                    return reject(error);
+                },
+                next: (row) => {
+                    _data.push(row);
+                },
+                complete: () => {
+                    return resolve(_data);
+                }
+            });
         });
     }
 
