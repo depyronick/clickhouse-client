@@ -14,10 +14,14 @@ $ npm i --save @depyronick/clickhouse-client
 
 - [Importing the module](https://github.com/depyronick/clickhouse-client#importing-the-module)
 - [Methods](https://github.com/depyronick/clickhouse-client#methods)
-  - [`ClickHouseClient.query<T>(query: string): Observable<T>`](https://github.com/depyronick/clickhouse-client#clickhouseclientquerytquery-string-observablet)
-  - [`ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`](https://github.com/depyronick/clickhouse-client/tree/1.0.6#clickhouseclientquerypromisetquery-string-promiset)
-  - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<any>`](https://github.com/depyronick/clickhouse-client#clickhouseclientinsertttable-string-data-t-observableany)
-  - [`ClickHouseClient.ping(timeout: number = 3000): Promise<boolean>`](https://github.com/depyronick/clickhouse-client#clickhouseclientpingtimeout-number--3000-promiseboolean)
+  - **Query**
+    - [`ClickHouseClient.query<T>(query: string): Observable<T>`](https://github.com/depyronick/clickhouse-client#clickhouseclientquerytquery-string-observablet)
+    - [`ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`](https://github.com/depyronick/clickhouse-client/tree/1.0.6#clickhouseclientquerypromisetquery-string-promiset)
+  - **Insert**
+    - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<void>`](https://github.com/depyronick/clickhouse-client#clickhouseclientinsertttable-string-data-t-observablevoid)
+    - [`ClickHouseClient.insertPromise<T>(table: string, data: T[]): Promise<void>`](https://github.com/depyronick/clickhouse-client/blob/main/README.md#clickhouseclientinsertpromisettable-string-data-t-promisevoid)
+  - **Other**
+    - [`ClickHouseClient.ping(timeout: number = 3000): Promise<boolean>`](https://github.com/depyronick/clickhouse-client#clickhouseclientpingtimeout-number--3000-promiseboolean)
 - [Notes](https://github.com/depyronick/clickhouse-client#notes)
 
 ### Importing the module
@@ -83,7 +87,7 @@ const rows = await this.analyticsServer.queryPromise(
 );
 ```
 
-#### `ClickHouseClient.insert<T>(table: string, data: T[]): Observable<any>`
+#### `ClickHouseClient.insert<T>(table: string, data: T[]): Observable<void>`
 
 The `insert` method accepts two inputs.
 
@@ -114,6 +118,30 @@ analyticsServer
       // called when insert is completed
     }
   });
+```
+
+#### `ClickHouseClient.insertPromise<T>(table: string, data: T[]): Promise<void>`
+
+The `insertPromise` method accepts the same inputs as `insert` but returns a Promise, instead of Observable.
+
+```javascript
+analyticsServer
+  .insertPromise('visits', [
+    {
+      timestamp: new Date().getTime(),
+      ip: '127.0.0.1',
+      os: 'OSX',
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/95.0.4638.69 Safari/537.36',
+      version: '1.0.0'
+    }
+  ])
+  .then(() => {
+    // insert was success
+  })
+  .catch(err => {
+    // called when an error occurred during insert
+  })
 ```
 
 #### `ClickHouseClient.ping(timeout: number = 3000): Promise<boolean>`
