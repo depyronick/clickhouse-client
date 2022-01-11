@@ -1,6 +1,6 @@
 export enum ClickHouseCompressionMethod {
-    NONE,
-    GZIP,
-    BROTLI,
-    DEFLATE
+    NONE = 'NONE',
+    GZIP = 'GZIP',
+    BROTLI = 'BROTLI',
+    DEFLATE = 'DEFLATE'
 }

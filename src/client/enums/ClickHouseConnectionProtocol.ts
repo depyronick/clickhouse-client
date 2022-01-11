@@ -1,4 +1,4 @@
 export enum ClickHouseConnectionProtocol {
-    HTTP,
-    HTTPS
+    HTTP = 'HTTP',
+    HTTPS = 'HTTPS'
 }
