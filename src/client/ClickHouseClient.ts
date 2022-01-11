@@ -137,7 +137,9 @@ export class ClickHouseClient {
 
                     if (this.options.format == ClickHouseDataFormat.JSON) {
                         const pipeline = stream
-                            .pipe(new Parser())
+                            .pipe(new Parser({
+                                jsonStreaming: true
+                            }))
                             .pipe(new Pick({
                                 filter: 'data'
                             }))
