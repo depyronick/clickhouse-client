@@ -148,7 +148,7 @@ analyticsServer
 
 The `ping` method accepts one input.
 
-- `timeout` is the time in milliseconds to wait for the server to send ping response `Ok.\n`
+- `timeout` is the time in milliseconds to wait for the server to send ping response `Ok`.
 
 ```javascript
 // if you're using async/await
