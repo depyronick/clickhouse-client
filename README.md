@@ -12,10 +12,10 @@ $ npm i --save @depyronick/clickhouse-client
 
 ## Quick Start
 
-- [Importing the module](https://github.com/depyronick/clickhouse-client#importing-the-module)
-- [Methods](https://github.com/depyronick/clickhouse-client#methods)
+- [Importing the module](#importing-the-module)
+- [Methods](#methods)
   - **Query**
-    - [`ClickHouseClient.query<T>(query: string): Observable<T>`](https://github.com/depyronick/clickhouse-client#clickhouseclientquerytquery-string-observablet)
+    - [`ClickHouseClient.query<T>(query: string): Observable<T>`](#clickhouseclientquerytquery-string-observablet)
     - [`ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`](https://github.com/depyronick/clickhouse-client/tree/1.0.6#clickhouseclientquerypromisetquery-string-promiset)
   - **Insert**
     - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<void>`](https://github.com/depyronick/clickhouse-client#clickhouseclientinsertttable-string-data-t-observablevoid)
