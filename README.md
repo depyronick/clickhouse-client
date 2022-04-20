@@ -1,6 +1,6 @@
-## Description
+## clickhouse-client for NodeJS
 
-[ClickHouse®](https://clickhouse.com/) is an open-source, high performance columnar OLAP database management system for real-time analytics using SQL.
+[ClickHouse®](https://clickhouse.com/) is an open-source, high performance columnar OLAP database management system for real-time analytics using SQL. ClickHouse combined with TypeScript helps you develop better type safety with your ClickHouse queries, giving you end-to-end typing.
 
 ## Installation
 
