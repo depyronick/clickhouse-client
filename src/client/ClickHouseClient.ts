@@ -1,6 +1,12 @@
-import axios, { AxiosRequestConfig, AxiosRequestHeaders } from 'axios';
+import axios, {
+    AxiosError,
+    AxiosRequestConfig,
+    AxiosRequestHeaders
+} from 'axios';
 
-import { IncomingMessage } from 'http';
+import {
+    IncomingMessage
+} from 'http';
 
 import * as Pick from 'stream-json/filters/Pick';
 import * as StreamArray from 'stream-json/streamers/StreamArray';
@@ -8,10 +14,21 @@ import * as StreamArray from 'stream-json/streamers/StreamArray';
 import * as zlib from 'zlib';
 
 import { Parser } from 'stream-json';
-import { Observable } from 'rxjs';
 
-import { ClickHouseConnectionProtocol, ClickHouseCompressionMethod, ClickHouseDataFormat } from './enums';
-import { ClickHouseClientOptions } from './interfaces/ClickHouseClientOptions';
+import {
+    Observable,
+    Subscriber
+} from 'rxjs';
+
+import {
+    ClickHouseConnectionProtocol,
+    ClickHouseCompressionMethod,
+    ClickHouseDataFormat
+} from './enums';
+
+import {
+    ClickHouseClientOptions
+} from './interfaces/ClickHouseClientOptions';
 
 export class ClickHouseClient {
     /**
@@ -24,11 +41,79 @@ export class ClickHouseClient {
     }
 
     /**
+     * Validate insert parameters
+     */
+    private _validateInsert<T = any>(
+        table: string,
+        data: T[]
+    ) {
+        // validate table
+        if (!table || table.trim() == '') {
+            throw new Error("Table name is required");
+        }
+
+        // validate data array
+        if (!Array.isArray(data)) {
+            throw new Error("Data must be an array");
+        }
+
+        if (Array.isArray(data) && data.length === 0) {
+            throw new Error("Data is empty");
+        }
+    }
+
+    /**
+     * Validate query parameters
+     */
+    private _validateQuery<T = any>(
+        query: string
+    ) {
+        // validate query
+        if (!query || query.trim() == '') {
+            throw new Error("Query is required");
+        }
+    }
+
+    /**
+     * Handle ClickHouse HTTP errors
+     */
+    private _handleError<T>(
+        reason: AxiosError,
+        subscriber: Subscriber<T>
+    ) {
+        if (reason && reason.response) {
+            let err: string = '';
+
+            reason
+                .response
+                .data
+                .on('data', chunk => {
+                    err += chunk.toString('utf8')
+                })
+                .on('end', () => {
+                    this.options.logger.error(err.trim());
+                    subscriber?.error(err.trim());
+
+                    err = '';
+                })
+        } else {
+            this.options.logger.error(reason);
+            subscriber?.error(reason);
+        }
+    }
+
+    /**
      * Prepare request options
      */
-    private _getRequestOptions(query: string, withoutFormat: boolean = false): AxiosRequestConfig<any> {
+    private _getRequestOptions(
+        query: string,
+        withoutFormat: boolean = false
+    ): AxiosRequestConfig<any> {
         let url = this._getUrl();
 
+        /**
+         * @todo: format should be strictly checked
+         */
         if (!withoutFormat) {
             query = `${query.trimEnd()} FORMAT ${this.options.format}`;
         }
@@ -102,7 +187,9 @@ export class ClickHouseClient {
      * Promise based query
      * @private
      */
-    private _queryPromise<T = any>(query: string) {
+    private _queryPromise<T = any>(
+        query: string
+    ) {
         return new Promise<T[]>((resolve, reject) => {
             const _data: T[] = [];
 
@@ -126,7 +213,9 @@ export class ClickHouseClient {
      * Observable based query
      * @private
      */
-    private _queryObservable<T = any>(query: string) {
+    private _queryObservable<T = any>(
+        query: string
+    ) {
         return new Observable<T>(subscriber => {
             axios
                 .request(
@@ -156,50 +245,47 @@ export class ClickHouseClient {
                         throw new Error("Unsupported data format. Only JSON is supported for now.")
                     }
                 })
-                .catch((reason) => {
-                    if (reason && reason.response) {
-                        let err: string = '';
-
-                        reason
-                            .response
-                            .data
-                            .on('data', chunk => {
-                                err += chunk.toString('utf8')
-                            })
-                            .on('end', () => {
-                                this.options.logger.error(err.trim());
-                                subscriber.error(err.trim());
-
-                                err = '';
-                            })
-                    } else {
-                        this.options.logger.error(reason);
-                        subscriber.error(reason);
-                    }
-                })
+                .catch((reason: AxiosError) => this._handleError<T>(reason, subscriber));
         })
     }
 
     /**
      * Observable based query
      */
-    public query<T = any>(query: string) {
+    public query<T = any>(
+        query: string
+    ) {
+        this._validateQuery<T>(query);
+
         return this._queryObservable<T>(query);
     }
 
     /**
      * Promise based query
      */
-    public queryPromise<T = any>(query: string) {
+    public queryPromise<T = any>(
+        query: string
+    ) {
+        this._validateQuery<T>(query);
+
         return this._queryPromise<T>(query);
     }
 
     /**
      * Insert data to table (Observable)
      */
-    public insert<T = any>(table: string, data: T[]) {
+    public insert<T = any>(
+        table: string,
+        data: T[]
+    ) {
+        this._validateInsert<T>(table, data);
+
         return new Observable<void>(subscriber => {
             let query = `INSERT INTO ${table}`;
+
+            /**
+             * @todo: data type should not be `any`
+             */
             let _data: any;
 
             switch (this.options.format) {
@@ -235,31 +321,35 @@ export class ClickHouseClient {
                             subscriber.complete();
                         });
                 })
-                .catch(reason => {
-                    subscriber.error(reason);
-                    this.options.logger.error(reason);
-                })
+                .catch((reason: AxiosError) => this._handleError(reason, subscriber));
         });
     }
 
     /**
      * Insert data to table (Promise)
      */
-    public insertPromise<T = any>(table: string, data: T[]) {
+    public insertPromise<T = any>(
+        table: string,
+        data: T[]
+    ) {
+        this._validateInsert<T>(table, data);
+
         return new Promise<void>((resolve, reject) => {
-            this.insert<T>(table, data).subscribe({
-                error: (error) => {
-                    return reject(error);
-                },
-                next: (row) => {
-                    // currently nothing to do here 
-                    // clickhouse http interface returns an empty response 
-                    // with inserts
-                },
-                complete: () => {
-                    return resolve();
-                }
-            });
+            this
+                .insert<T>(table, data)
+                .subscribe({
+                    error: (error) => {
+                        return reject(error);
+                    },
+                    next: (row) => {
+                        // currently nothing to do here 
+                        // clickhouse http interface returns an empty response 
+                        // with inserts
+                    },
+                    complete: () => {
+                        return resolve();
+                    }
+                });
         });
     }
 
@@ -268,7 +358,9 @@ export class ClickHouseClient {
      * 
      * @param timeout timeout in milliseconds, defaults to 3000.
      */
-    public ping(timeout: number = 3000) {
+    public ping(
+        timeout: number = 3000
+    ) {
         return new Promise<boolean>((resolve, reject) => {
             axios
                 .get(`${this._getUrl()}/ping`, {
