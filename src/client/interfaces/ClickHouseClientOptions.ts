@@ -109,6 +109,23 @@ export class ClickHouseClientOptions {
     public httpsAgent?: https.Agent;
 
     /**
+     * Maximum Body Length
+     * (Node only option) 
+     * 
+     * Defines the max size of the http request content in bytes allowed
+     * 
+     * Default: `2000`
+     */
+    public maxBodyLength?: number = 2000;
+
+    /**
+     * Maximum Content Length
+     * 
+     * Defines the max size of the http response content in bytes allowed in node.js
+     */
+    public maxContentLength?: number = 2000;
+
+    /**
      * HTTP Interface Compression Method
      * 
      * Default: NONE

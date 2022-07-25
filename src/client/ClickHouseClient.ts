@@ -138,6 +138,8 @@ export class ClickHouseClient {
             },
             httpAgent: this.options.httpAgent,
             httpsAgent: this.options.httpsAgent,
+            maxBodyLength: this.options.maxBodyLength,
+            maxContentLength: this.options.maxContentLength,
             transformResponse: (data: IncomingMessage) => {
                 if (this.options.compression == ClickHouseCompressionMethod.BROTLI) {
                     return data.pipe(zlib.createBrotliDecompress());
