@@ -78,7 +78,7 @@ export class ClickHouseClient {
      * Handle ClickHouse HTTP errors
      */
     private _handleError<T>(
-        reason: AxiosError,
+        reason: AxiosError<any>,
         subscriber: Subscriber<T>
     ) {
         if (reason && reason.response) {
