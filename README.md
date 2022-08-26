@@ -52,7 +52,7 @@ See **[ClickHouseOptions](https://github.com/depyronick/clickhouse-client/blob/m
 
 ### Methods
 
-#### `ClickHouseClient.query<T>(query: string): Observable<T>`
+#### `ClickHouseClient.query<T>(query: string, params?: Record<string,string | number>): Observable<T>`
 
 ```javascript
 this.analyticsServer.query('SELECT * FROM visits LIMIT 10').subscribe({
@@ -68,7 +68,7 @@ this.analyticsServer.query('SELECT * FROM visits LIMIT 10').subscribe({
 });
 ```
 
-#### `ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`
+#### `ClickHouseClient.queryPromise<T>(query: string, params?: Record<string,string | number>): Promise<T[]>`
 
 ```javascript
 this.analyticsServer
