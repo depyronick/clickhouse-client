@@ -18,8 +18,8 @@ $ npm i --save @depyronick/clickhouse-client
     - [`ClickHouseClient.query<T>(query: string): Observable<T>`](#clickhouseclientquerytquery-string-observablet)
     - [`ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`](#clickhouseclientquerypromisetquery-string-promiset)
   - **[Query with parameters](#query-with-params)**
-    - [`ClickHouseClient.query<T>(query: string, params: Record<string, string | number>): Observable<T>`](#clickhouseclientquerytquery-string-observablet)
-    - [`ClickHouseClient.queryPromise<T>(query: string, params: Record<string, string | number>): Promise<T[]>`](#clickhouseclientquerypromisetquery-string-promiset)
+    - [`ClickHouseClient.query<T>(query: string, params: Record<string, string | number>): Observable<T>`](#clickhouseclientquerytquery-string-params-recordstring-string--number-observablet)
+    - [`ClickHouseClient.queryPromise<T>(query: string, params: Record<string, string | number>): Promise<T[]>`](#clickhouseclientquerypromisetquery-string-params-recordstring-string--number-promiset)
   - **[Insert](#insert)**
     - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<void>`](#clickhouseclientinsertttable-string-data-t-observablevoid)
     - [`ClickHouseClient.insertPromise<T>(table: string, data: T[]): Promise<void>`](#clickhouseclientinsertpromisettable-string-data-t-promisevoid)
@@ -92,6 +92,17 @@ const rows = await this.analyticsServer.queryPromise(
 #### Query with params
 
 Clickhouse-server supports performing queries with paramaters. Both `query` and `queryPromise` accept a second argument which respresents the query paramaters value as a `Record<string, string | number>`.
+
+The query can contain parameters placeholders that have the following syntax:
+```sql
+{<name>:<data type>}
+-- a parameter called "limit" that will be interpreted as an 8-bit unsigned integer 
+{limit:UInt8} 
+```
+So, you can pass parameters as the following:
+```sql
+SELECT * FROM visits LIMIT {limit:UInt8}
+```
 
 [Official documentation (HTTP Interface - Query with paramters)](https://clickhouse.com/docs/en/interfaces/http#cli-queries-with-parameters)
 
