@@ -107,6 +107,7 @@ export class ClickHouseClient {
      */
     private _getRequestOptions(
         query: string,
+        queryParams: Record<string, string | number> = {},
         withoutFormat: boolean = false
     ): AxiosRequestConfig<any> {
         let url = this._getUrl();
@@ -118,10 +119,11 @@ export class ClickHouseClient {
             query = `${query.trimEnd()} FORMAT ${this.options.format}`;
         }
 
-        const params = {
+        const params = new URLSearchParams({
             query,
-            database: this.options.database
-        };
+            database: this.options.database,
+            ...Object.fromEntries(Object.entries(queryParams).map(([key, value]) => [`param_${key}`, value]))
+        });
 
         if (this.options.compression != ClickHouseCompressionMethod.NONE) {
             params['enable_http_compression'] = 1;
@@ -190,13 +192,14 @@ export class ClickHouseClient {
      * @private
      */
     private _queryPromise<T = any>(
-        query: string
+        query: string,
+        params?: Record<string, string | number>
     ) {
         return new Promise<T[]>((resolve, reject) => {
             const _data: T[] = [];
 
             this
-                ._queryObservable<T>(query)
+                ._queryObservable<T>(query, params)
                 .subscribe({
                     error: (error) => {
                         return reject(error);
@@ -216,12 +219,13 @@ export class ClickHouseClient {
      * @private
      */
     private _queryObservable<T = any>(
-        query: string
+        query: string,
+        params?: Record<string, string | number>
     ) {
         return new Observable<T>(subscriber => {
             axios
                 .request(
-                    this._getRequestOptions(query)
+                    this._getRequestOptions(query, params)
                 )
                 .then((response) => {
                     const stream: IncomingMessage = response.data;
@@ -255,22 +259,24 @@ export class ClickHouseClient {
      * Observable based query
      */
     public query<T = any>(
-        query: string
+        query: string,
+        params?: Record<string, string | number>
     ) {
         this._validateQuery<T>(query);
 
-        return this._queryObservable<T>(query);
+        return this._queryObservable<T>(query, params);
     }
 
     /**
      * Promise based query
      */
     public queryPromise<T = any>(
-        query: string
+        query: string,
+        params?: Record<string, string | number>
     ) {
         this._validateQuery<T>(query);
 
-        return this._queryPromise<T>(query);
+        return this._queryPromise<T>(query, params);
     }
 
     /**
@@ -300,7 +306,7 @@ export class ClickHouseClient {
             axios
                 .request(
                     Object.assign(
-                        this._getRequestOptions(query, true),
+                        this._getRequestOptions(query, {}, true),
                         <AxiosRequestConfig>{
                             responseType: 'stream',
                             method: 'POST',

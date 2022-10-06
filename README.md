@@ -1,6 +1,6 @@
-## Description
+## clickhouse-client for NodeJS
 
-[ClickHouse®](https://clickhouse.com/) is an open-source, high performance columnar OLAP database management system for real-time analytics using SQL.
+[ClickHouse®](https://clickhouse.com/) is an open-source, high performance columnar OLAP database management system for real-time analytics using SQL. ClickHouse combined with TypeScript helps you develop better type safety with your ClickHouse queries, giving you end-to-end typing.
 
 ## Installation
 
@@ -14,13 +14,16 @@ $ npm i --save @depyronick/clickhouse-client
 
 - [Importing the module](#importing-the-module)
 - [Methods](#methods)
-  - **Query**
+  - **[Query](#query)**
     - [`ClickHouseClient.query<T>(query: string): Observable<T>`](#clickhouseclientquerytquery-string-observablet)
     - [`ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`](#clickhouseclientquerypromisetquery-string-promiset)
-  - **Insert**
+  - **[Query with parameters](#query-with-params)**
+    - [`ClickHouseClient.query<T>(query: string, params: Record<string, string | number>): Observable<T>`](#clickhouseclientquerytquery-string-params-recordstring-string--number-observablet)
+    - [`ClickHouseClient.queryPromise<T>(query: string, params: Record<string, string | number>): Promise<T[]>`](#clickhouseclientquerypromisetquery-string-params-recordstring-string--number-promiset)
+  - **[Insert](#insert)**
     - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<void>`](#clickhouseclientinsertttable-string-data-t-observablevoid)
     - [`ClickHouseClient.insertPromise<T>(table: string, data: T[]): Promise<void>`](#clickhouseclientinsertpromisettable-string-data-t-promisevoid)
-  - **Other**
+  - **[Other](#other)**
     - [`ClickHouseClient.ping(timeout: number = 3000): Promise<boolean>`](#clickhouseclientpingtimeout-number--3000-promiseboolean)
 - [Notes](#notes)
 
@@ -51,9 +54,8 @@ const chatServer = new ClickHouseClient({
 See **[ClickHouseOptions](https://github.com/depyronick/clickhouse-client/blob/main/src/client/interfaces/ClickHouseClientOptions.ts 'ClickHouseOptions')** object for more information.
 
 ### Methods
-
-#### `ClickHouseClient.query<T>(query: string): Observable<T>`
-
+#### Query
+##### `ClickHouseClient.query<T>(query: string): Observable<T>`
 ```javascript
 this.analyticsServer.query('SELECT * FROM visits LIMIT 10').subscribe({
   error: (err) => {
@@ -68,7 +70,7 @@ this.analyticsServer.query('SELECT * FROM visits LIMIT 10').subscribe({
 });
 ```
 
-#### `ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`
+##### `ClickHouseClient.queryPromise<T>(query: string): Promise<T[]>`
 
 ```javascript
 this.analyticsServer
@@ -87,7 +89,76 @@ const rows = await this.analyticsServer.queryPromise(
 );
 ```
 
-#### `ClickHouseClient.insert<T>(table: string, data: T[]): Observable<void>`
+#### Query with params
+
+Clickhouse-server supports performing queries with paramaters. Both `query` and `queryPromise` accept a second argument which respresents the query paramaters value as a `Record<string, string | number>`.
+
+The query can contain parameters placeholders that have the following syntax:
+```sql
+{<name>:<data type>}
+-- a parameter called "limit" that will be interpreted as an 8-bit unsigned integer 
+{limit:UInt8} 
+```
+So, you can pass parameters as the following:
+```sql
+SELECT * FROM visits LIMIT {limit:UInt8}
+```
+
+[Official documentation (HTTP Interface - Query with paramters)](https://clickhouse.com/docs/en/interfaces/http#cli-queries-with-parameters)
+
+##### `ClickHouseClient.query<T>(query: string, params: Record<string, string | number>): Observable<T>`
+```javascript
+const yersterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
+
+const params = {
+  yesterday: yesterday.getTime(),
+  osName: "OSX"
+}
+
+const query = 'SELECT * FROM visits WHERE timestamp >= {yesterday:DateTime} AND os = {osName:String} LIMIT 10';
+
+this.analyticsServer.query(query, params).subscribe({
+  error: (err) => {
+    // called when an error occurred during query
+  },
+  next: (row) => {
+    // called for each row
+  },
+  complete: () => {
+    // called when stream is completed
+  }
+});
+```
+
+##### `ClickHouseClient.queryPromise<T>(query: string, params: Record<string, string | number>): Promise<T[]>`
+
+```javascript
+const yersterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
+
+const params = {
+  yesterday: yesterday.getTime(),
+  osName: "OSX"
+}
+
+const query = 'SELECT * FROM visits WHERE timestamp >= {yesterday:DateTime} AND os = {osName:String} LIMIT 10';
+
+this.analyticsServer
+  .queryPromise(query, params)
+  .then((rows) => {
+    // all retrieved rows
+  })
+  .catch((err) => {
+    // called when an error occurred during query
+  });
+
+// or
+
+const rows = await this.analyticsServer.queryPromise(query, params);
+```
+#### Insert
+##### `ClickHouseClient.insert<T>(table: string, data: T[]): Observable<void>`
 
 The `insert` method accepts two inputs.
 
@@ -144,7 +215,8 @@ analyticsServer
   })
 ```
 
-#### `ClickHouseClient.ping(timeout: number = 3000): Promise<boolean>`
+#### Other
+##### `ClickHouseClient.ping(timeout: number = 3000): Promise<boolean>`
 
 The `ping` method accepts one input.
 
