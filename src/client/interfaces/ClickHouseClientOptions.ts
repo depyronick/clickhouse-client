@@ -38,49 +38,7 @@ export class ClickHouseSettings {
     public buffer_size?: number = 1048576;
 }
 
-export class ClickHouseClientOptions {
-    /**
-     * ClickHouse Server Identifier
-     * 
-     * Default: CLICKHOUSE_DEFAULT
-     */
-    public name?: string = 'CLICKHOUSE_DEFAULT';
-
-    /**
-     * ClickHouse Host
-     * 
-     * Default: 127.0.0.1
-     */
-    public host?: string = "127.0.0.1";
-
-    /**
-     * ClickHouse Port
-     * 
-     * Default: 8123
-     */
-    public port?: number = 8123;
-
-    /**
-     * ClickHouse Username
-     * 
-     * Default: default
-     */
-    public username?: string = "default";
-
-    /**
-     * ClickHouse Password
-     * 
-     * Default: <empty>
-     */
-    public password?: string = "";
-
-    /**
-     * ClickHouse Database
-     * 
-     * Default: default
-     */
-    public database?: string = "default";
-
+export class ClickHouseHttpConfig {
     /**
      * HTTP Interface Protocol
      * 
@@ -128,14 +86,58 @@ export class ClickHouseClientOptions {
     public maxContentLength?: number = Infinity;
 
     /**
-     * HTTP Interface Compression Method
+     * ClickHouse HTTP Interface Compression Method
      * 
      * Default: NONE
      */
     public compression?: ClickHouseCompressionMethod = ClickHouseCompressionMethod.NONE;
+}
+
+export class ClickHouseClientOptions {
+    /**
+     * ClickHouse Server Identifier
+     * 
+     * Default: CLICKHOUSE_DEFAULT
+     */
+    public name?: string = 'CLICKHOUSE_DEFAULT';
 
     /**
-     * Input & Output Data Format
+     * ClickHouse Host
+     * 
+     * Default: 127.0.0.1
+     */
+    public host?: string = "127.0.0.1";
+
+    /**
+     * ClickHouse Port
+     * 
+     * Default: 8123
+     */
+    public port?: number = 8123;
+
+    /**
+     * ClickHouse Username
+     * 
+     * Default: default
+     */
+    public username?: string = "default";
+
+    /**
+     * ClickHouse Password
+     * 
+     * Default: <empty>
+     */
+    public password?: string = "";
+
+    /**
+     * ClickHouse Database
+     * 
+     * Default: default
+     */
+    public database?: string = "default";
+
+    /**
+     * ClickHouse Input & Output Data Format
      * 
      * Default: JSON
      * @note Currently, only JSON is supported.
@@ -143,7 +145,12 @@ export class ClickHouseClientOptions {
     public format?: ClickHouseDataFormat = ClickHouseDataFormat.JSON;
 
     /**
-     * HTTP Interface Connection Settings
+     * Axios HTTP Request / Response Configuration
+     */
+    public httpConfig: ClickHouseHttpConfig = new ClickHouseHttpConfig();
+
+    /**
+     * ClickHouse HTTP Interface Connection Settings
      */
     public settings?: ClickHouseSettings = new ClickHouseSettings();
 

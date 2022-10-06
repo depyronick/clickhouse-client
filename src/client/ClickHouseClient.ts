@@ -68,6 +68,10 @@ export class ClickHouseClient {
     private _validateQuery<T = any>(
         query: string
     ) {
+        if (!Object.values(ClickHouseDataFormat).includes(this.options.format)) {
+            throw new Error(`${this.options.format} is not supported.`);
+        }
+
         // validate query
         if (!query || query.trim() == '') {
             throw new Error("Query is required");
@@ -75,11 +79,11 @@ export class ClickHouseClient {
     }
 
     /**
-     * Handle ClickHouse HTTP errors
+     * Handle ClickHouse HTTP errors (for Observable)
      */
-    private _handleError<T>(
+    private _handleObservableError<T>(
         reason: AxiosError<any>,
-        subscriber: Subscriber<T>
+        subscriber?: Subscriber<T>
     ) {
         if (reason && reason.response) {
             let err: string = '';
@@ -92,13 +96,32 @@ export class ClickHouseClient {
                 })
                 .on('end', () => {
                     this.options.logger.error(err.trim());
-                    subscriber?.error(err.trim());
+
+                    if (subscriber) {
+                        subscriber?.error(err.trim());
+                    }
 
                     err = '';
                 })
         } else {
             this.options.logger.error(reason);
-            subscriber?.error(reason);
+
+            if (subscriber) {
+                subscriber?.error(reason);
+            }
+        }
+    }
+
+    /**
+     * Handle ClickHouse HTTP errors (for Promise)
+     */
+    private _handlePromiseError<T>(
+        reason: AxiosError<any>
+    ) {
+        if (reason && reason.response) {
+            this.options.logger.error(reason.response.data);
+        } else {
+            this.options.logger.error(reason);
         }
     }
 
@@ -112,9 +135,6 @@ export class ClickHouseClient {
     ): AxiosRequestConfig<any> {
         let url = this._getUrl();
 
-        /**
-         * @todo: format should be strictly checked
-         */
         if (!withoutFormat) {
             query = `${query.trimEnd()} FORMAT ${this.options.format}`;
         }
@@ -125,7 +145,7 @@ export class ClickHouseClient {
             ...Object.fromEntries(Object.entries(queryParams).map(([key, value]) => [`param_${key}`, value]))
         });
 
-        if (this.options.compression != ClickHouseCompressionMethod.NONE) {
+        if (this.options.httpConfig.compression != ClickHouseCompressionMethod.NONE) {
             params['enable_http_compression'] = 1;
         }
 
@@ -138,12 +158,12 @@ export class ClickHouseClient {
                 username: this.options.username,
                 password: this.options.password
             },
-            httpAgent: this.options.httpAgent,
-            httpsAgent: this.options.httpsAgent,
-            maxBodyLength: this.options.maxBodyLength,
-            maxContentLength: this.options.maxContentLength,
+            httpAgent: this.options.httpConfig.httpAgent,
+            httpsAgent: this.options.httpConfig.httpsAgent,
+            maxBodyLength: this.options.httpConfig.maxBodyLength,
+            maxContentLength: this.options.httpConfig.maxContentLength,
             transformResponse: (data: IncomingMessage) => {
-                if (this.options.compression == ClickHouseCompressionMethod.BROTLI) {
+                if (this.options.httpConfig.compression == ClickHouseCompressionMethod.BROTLI) {
                     return data.pipe(zlib.createBrotliDecompress());
                 } else {
                     return data;
@@ -161,7 +181,7 @@ export class ClickHouseClient {
     private _getHeaders(): AxiosRequestHeaders {
         const headers = {};
 
-        switch (this.options.compression) {
+        switch (this.options.httpConfig.compression) {
             case ClickHouseCompressionMethod.GZIP:
                 headers['Accept-Encoding'] = 'gzip';
                 break;
@@ -179,7 +199,7 @@ export class ClickHouseClient {
      * Get ClickHouse HTTP Interface URL
      */
     private _getUrl() {
-        switch (this.options.protocol) {
+        switch (this.options.httpConfig.protocol) {
             case ClickHouseConnectionProtocol.HTTP:
                 return `http://${this.options.host}:${this.options.port}`;
             case ClickHouseConnectionProtocol.HTTPS:
@@ -195,22 +215,29 @@ export class ClickHouseClient {
         query: string,
         params?: Record<string, string | number>
     ) {
-        return new Promise<T[]>((resolve, reject) => {
-            const _data: T[] = [];
-
-            this
-                ._queryObservable<T>(query, params)
-                .subscribe({
-                    error: (error) => {
-                        return reject(error);
-                    },
-                    next: (row) => {
-                        _data.push(row);
-                    },
-                    complete: () => {
-                        return resolve(_data);
+        return new Promise<T[] | string>((resolve, reject) => {
+            axios
+                .request({
+                    ...this._getRequestOptions(query, params),
+                    responseType: 'text'
+                })
+                .then(response => response.data)
+                .then(data => {
+                    switch (this.options.format) {
+                        case ClickHouseDataFormat.JSON:
+                        case ClickHouseDataFormat.JSONCompact:
+                        case ClickHouseDataFormat.JSONCompactStrings:
+                        case ClickHouseDataFormat.JSONStrings:
+                            return resolve(
+                                JSON.parse(data).data as T[]
+                            )
+                        default:
+                            return resolve(data);
                     }
-                });
+                })
+                .catch((reason: AxiosError) => {
+                    return reject(this._handlePromiseError<T>(reason));
+                })
         });
     }
 
@@ -222,7 +249,7 @@ export class ClickHouseClient {
         query: string,
         params?: Record<string, string | number>
     ) {
-        return new Observable<T>(subscriber => {
+        return new Observable<T | string>(subscriber => {
             axios
                 .request(
                     this._getRequestOptions(query, params)
@@ -230,28 +257,40 @@ export class ClickHouseClient {
                 .then((response) => {
                     const stream: IncomingMessage = response.data;
 
-                    if (this.options.format == ClickHouseDataFormat.JSON) {
-                        const pipeline = stream
-                            .pipe(new Parser({
-                                jsonStreaming: true
-                            }))
-                            .pipe(new Pick({
-                                filter: 'data'
-                            }))
-                            .pipe(new StreamArray())
+                    switch (this.options.format) {
+                        case ClickHouseDataFormat.JSON:
+                        case ClickHouseDataFormat.JSONCompact:
+                        case ClickHouseDataFormat.JSONCompactStrings:
+                        case ClickHouseDataFormat.JSONStrings:
+                            const pipeline = stream
+                                .pipe(new Parser({
+                                    jsonStreaming: true
+                                }))
+                                .pipe(new Pick({
+                                    filter: 'data'
+                                }))
+                                .pipe(new StreamArray())
 
-                        pipeline
-                            .on('data', (row) => {
-                                subscriber.next(row.value as T);
-                            })
-                            .on('end', () => {
-                                subscriber.complete()
-                            })
-                    } else {
-                        throw new Error("Unsupported data format. Only JSON is supported for now.")
+                            pipeline
+                                .on('data', (row) => {
+                                    subscriber.next(row.value as T);
+                                })
+                                .on('end', () => {
+                                    subscriber.complete();
+                                })
+                            break;
+                        default:
+                            stream
+                                .on('data', (chunk: Buffer) => {
+                                    subscriber.next(chunk.toString('utf-8'));
+                                })
+                                .on('end', () => {
+                                    subscriber.complete();
+                                })
+                            break;
                     }
                 })
-                .catch((reason: AxiosError) => this._handleError<T>(reason, subscriber));
+                .catch((reason: AxiosError) => this._handleObservableError<T>(reason, subscriber));
         })
     }
 
@@ -311,8 +350,8 @@ export class ClickHouseClient {
                             responseType: 'stream',
                             method: 'POST',
                             data: _data,
-                            httpAgent: this.options.httpAgent,
-                            httpsAgent: this.options.httpsAgent
+                            httpAgent: this.options.httpConfig.httpAgent,
+                            httpsAgent: this.options.httpConfig.httpsAgent
                         }
                     )
                 )
@@ -329,7 +368,7 @@ export class ClickHouseClient {
                             subscriber.complete();
                         });
                 })
-                .catch((reason: AxiosError) => this._handleError(reason, subscriber));
+                .catch((reason: AxiosError) => this._handleObservableError(reason, subscriber));
         });
     }
 
@@ -373,8 +412,8 @@ export class ClickHouseClient {
             axios
                 .get(`${this._getUrl()}/ping`, {
                     timeout,
-                    httpAgent: this.options.httpAgent,
-                    httpsAgent: this.options.httpsAgent
+                    httpAgent: this.options.httpConfig.httpAgent,
+                    httpsAgent: this.options.httpConfig.httpsAgent
                 })
                 .then((response) => {
                     if (response && response.data) {
