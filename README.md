@@ -65,7 +65,8 @@ this.analyticsServer.query('SELECT * FROM visits LIMIT 10').subscribe({
     // called when an error occurred during query
   },
   next: (row) => {
-    // called for each row
+    // if specified format is any of JSON formats, `row` here is the json representation of the row
+    // if format is not any of JSON, then `row` represents string chunk from http stream
   },
   complete: () => {
     // called when stream is completed
@@ -79,7 +80,8 @@ this.analyticsServer.query('SELECT * FROM visits LIMIT 10').subscribe({
 this.analyticsServer
   .queryPromise('SELECT * FROM visits LIMIT 10')
   .then((rows) => {
-    // all retrieved rows
+    // if specified format is any of JSON formats, rows is an array of all retrieved rows
+    // if not, then rows is the raw string result from clickhouse-server
   })
   .catch((err) => {
     // called when an error occurred during query
@@ -131,7 +133,8 @@ this.analyticsServer.query(query, params).subscribe({
     // called when an error occurred during query
   },
   next: (row) => {
-    // called for each row
+    // if specified format is any of JSON formats, `row` here is the json representation of the row
+    // if format is not any of JSON, then `row` represents string chunk from http stream
   },
   complete: () => {
     // called when stream is completed
@@ -156,7 +159,8 @@ const query =
 this.analyticsServer
   .queryPromise(query, params)
   .then((rows) => {
-    // all retrieved rows
+    // if specified format is any of JSON formats, rows is an array of all retrieved rows
+    // if not, then rows is the raw string result from clickhouse-server
   })
   .catch((err) => {
     // called when an error occurred during query
