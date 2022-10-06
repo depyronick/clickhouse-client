@@ -38,6 +38,61 @@ export class ClickHouseSettings {
     public buffer_size?: number = 1048576;
 }
 
+export class ClickHouseHttpConfig {
+    /**
+     * HTTP Interface Protocol
+     * 
+     * Default: HTTP
+     */
+    public protocol?: ClickHouseConnectionProtocol = ClickHouseConnectionProtocol.HTTP;
+
+    /**
+     * HTTP Agent
+     * 
+     * `httpAgent` define a custom agent to be used when performing http requests, in node.js. 
+     * This allows options to be added like `keepAlive` that are not enabled by default.
+     * 
+     * Default: `undefined`
+     */
+    public httpAgent?: http.Agent;
+
+    /**
+     * HTTPS Agent
+     * 
+     * `httpsAgent` define a custom agent to be used when performing https requests in node.js
+     * This allows options to be added like `keepAlive` that are not enabled by default.
+     * 
+     * Default: `undefined`
+     */
+    public httpsAgent?: https.Agent;
+
+    /**
+     * Maximum Body Length
+     * (Node only option) 
+     * 
+     * Defines the max size of the http request content in bytes allowed
+     * 
+     * Default: `Infinity`
+     */
+    public maxBodyLength?: number = Infinity;
+
+    /**
+     * Maximum Content Length
+     * 
+     * Defines the max size of the http response content in bytes allowed in node.js
+     * 
+     * Default: `Infinity`
+     */
+    public maxContentLength?: number = Infinity;
+
+    /**
+     * ClickHouse HTTP Interface Compression Method
+     * 
+     * Default: NONE
+     */
+    public compression?: ClickHouseCompressionMethod = ClickHouseCompressionMethod.NONE;
+}
+
 export class ClickHouseClientOptions {
     /**
      * ClickHouse Server Identifier
@@ -82,41 +137,7 @@ export class ClickHouseClientOptions {
     public database?: string = "default";
 
     /**
-     * HTTP Interface Protocol
-     * 
-     * Default: HTTP
-     */
-    public protocol?: ClickHouseConnectionProtocol = ClickHouseConnectionProtocol.HTTP;
-
-    /**
-     * HTTP Agent
-     * 
-     * `httpAgent` define a custom agent to be used when performing http requests, in node.js. 
-     * This allows options to be added like `keepAlive` that are not enabled by default.
-     * 
-     * Default: `undefined`
-     */
-    public httpAgent?: http.Agent;
-
-    /**
-     * HTTPS Agent
-     * 
-     * `httpsAgent` define a custom agent to be used when performing https requests in node.js
-     * This allows options to be added like `keepAlive` that are not enabled by default.
-     * 
-     * Default: `undefined`
-     */
-    public httpsAgent?: https.Agent;
-
-    /**
-     * HTTP Interface Compression Method
-     * 
-     * Default: NONE
-     */
-    public compression?: ClickHouseCompressionMethod = ClickHouseCompressionMethod.NONE;
-
-    /**
-     * Input & Output Data Format
+     * ClickHouse Input & Output Data Format
      * 
      * Default: JSON
      * @note Currently, only JSON is supported.
@@ -124,7 +145,12 @@ export class ClickHouseClientOptions {
     public format?: ClickHouseDataFormat = ClickHouseDataFormat.JSON;
 
     /**
-     * HTTP Interface Connection Settings
+     * Axios HTTP Request / Response Configuration
+     */
+    public httpConfig: ClickHouseHttpConfig = new ClickHouseHttpConfig();
+
+    /**
+     * ClickHouse HTTP Interface Connection Settings
      */
     public settings?: ClickHouseSettings = new ClickHouseSettings();
 
