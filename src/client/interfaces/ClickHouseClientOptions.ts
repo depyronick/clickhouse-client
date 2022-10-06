@@ -114,16 +114,18 @@ export class ClickHouseClientOptions {
      * 
      * Defines the max size of the http request content in bytes allowed
      * 
-     * Default: `2000`
+     * Default: `Infinity`
      */
-    public maxBodyLength?: number = 2000;
+    public maxBodyLength?: number = Infinity;
 
     /**
      * Maximum Content Length
      * 
      * Defines the max size of the http response content in bytes allowed in node.js
+     * 
+     * Default: `Infinity`
      */
-    public maxContentLength?: number = 2000;
+    public maxContentLength?: number = Infinity;
 
     /**
      * HTTP Interface Compression Method
