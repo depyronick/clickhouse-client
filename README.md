@@ -15,11 +15,11 @@ $ npm i --save @depyronick/clickhouse-client
 - [Importing the module](#importing-the-module)
 - [Methods](#methods)
   - **[Query](#query)**
-    - [`ClickHouseClient.query<T>(query: string): Observable<string | T>`](#clickhouseclientquerytquery-string-observablet)
-    - [`ClickHouseClient.queryPromise<T>(query: string): Promise<string | T[]>`](#clickhouseclientquerypromisetquery-string-promiset)
+    - [`ClickHouseClient.query<T>(query: string): Observable<string | T>`](#clickhouseclientquerytquery-string-observablestring--t)
+    - [`ClickHouseClient.queryPromise<T>(query: string): Promise<string | T[]>`](#clickhouseclientquerypromisetquery-string-promisestring--t)
   - **[Query with parameters](#query-with-params)**
-    - [`ClickHouseClient.query<T>(query: string, params: Record<string, string | number>): Observable<string | T>`](#clickhouseclientquerytquery-string-params-recordstring-string--number-observablet)
-    - [`ClickHouseClient.queryPromise<T>(query: string, params: Record<string, string | number>): Promise<string | T[]>`](#clickhouseclientquerypromisetquery-string-params-recordstring-string--number-promiset)
+    - [`ClickHouseClient.query<T>(query: string, params: Record<string, string | number>): Observable<string | T>`](#clickhouseclientquerytquery-string-params-recordstring-string--number-observablestring--t)
+    - [`ClickHouseClient.queryPromise<T>(query: string, params: Record<string, string | number>): Promise<string | T[]>`](#clickhouseclientquerypromisetquery-string-params-recordstring-string--number-promisestring--t)
   - **[Insert](#insert)**
     - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<void>`](#clickhouseclientinsertttable-string-data-t-observablevoid)
     - [`ClickHouseClient.insertPromise<T>(table: string, data: T[]): Promise<void>`](#clickhouseclientinsertpromisettable-string-data-t-promisevoid)
