@@ -35,9 +35,13 @@ export class ClickHouseClient {
     * ClickHouse Service
     */
     constructor(
-        private options: ClickHouseClientOptions
+        private options?: ClickHouseClientOptions
     ) {
-        this.options = Object.assign(new ClickHouseClientOptions(), options);
+        if (this.options) {
+            this.options = Object.assign(new ClickHouseClientOptions(), this.options);
+        } else {
+            this.options = new ClickHouseClientOptions();
+        }
     }
 
     /**
@@ -178,8 +182,8 @@ export class ClickHouseClient {
     /**
      * Prepare headers for request
      */
-    private _getHeaders(): AxiosRequestHeaders {
-        const headers = {};
+    private _getHeaders() {
+        const headers: { "Accept-Encoding"?: "gzip" | "deflate" | "br" } = {};
 
         switch (this.options.httpConfig.compression) {
             case ClickHouseCompressionMethod.GZIP:

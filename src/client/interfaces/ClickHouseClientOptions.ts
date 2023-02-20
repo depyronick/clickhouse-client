@@ -140,14 +140,13 @@ export class ClickHouseClientOptions {
      * ClickHouse Input & Output Data Format
      * 
      * Default: JSON
-     * @note Currently, only JSON is supported.
      */
     public format?: ClickHouseDataFormat = ClickHouseDataFormat.JSON;
 
     /**
      * Axios HTTP Request / Response Configuration
      */
-    public httpConfig: ClickHouseHttpConfig = new ClickHouseHttpConfig();
+    public httpConfig?: ClickHouseHttpConfig = new ClickHouseHttpConfig();
 
     /**
      * ClickHouse HTTP Interface Connection Settings
@@ -168,6 +167,10 @@ export class ClickHouseClientOptions {
     constructor() {
         if (this.settings) {
             this.settings = Object.assign(new ClickHouseSettings(), this.settings);
+        }
+
+        if (this.httpConfig) {
+            this.httpConfig = Object.assign(new ClickHouseHttpConfig(), this.httpConfig);
         }
     }
 }
