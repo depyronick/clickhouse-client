@@ -341,7 +341,7 @@ export class ClickHouseClient {
 
             switch (this.options.format) {
                 case ClickHouseDataFormat.JSON:
-                    query += ` FORMAT JSONEachRow`;
+                    query += ` FORMAT JSONEachRow `;
                     _data = data.map(d => JSON.stringify(d)).join('\n');
                     break;
             }
@@ -353,7 +353,7 @@ export class ClickHouseClient {
                         <AxiosRequestConfig>{
                             responseType: 'stream',
                             method: 'POST',
-                            data: _data,
+                            data: `${query}${_data}`,
                             httpAgent: this.options.httpConfig.httpAgent,
                             httpsAgent: this.options.httpConfig.httpsAgent
                         }
