@@ -233,7 +233,7 @@ export class ClickHouseClient {
                         case ClickHouseDataFormat.JSONCompactStrings:
                         case ClickHouseDataFormat.JSONStrings:
                             return resolve(
-                                JSON.parse(data).data as T[]
+                                data?JSON.parse(data).data:[] as T[]
                             )
                         default:
                             return resolve(data);
