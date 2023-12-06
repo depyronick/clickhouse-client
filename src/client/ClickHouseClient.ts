@@ -232,9 +232,15 @@ export class ClickHouseClient {
                         case ClickHouseDataFormat.JSONCompact:
                         case ClickHouseDataFormat.JSONCompactStrings:
                         case ClickHouseDataFormat.JSONStrings:
-                            return resolve(
-                                data?JSON.parse(data).data:[] as T[]
-                            )
+                            if(data) {
+                                return resolve(
+                                    JSON.parse(data).data as T[]
+                                );
+                            } else {
+                                return resolve(
+                                    [] as T[]
+                                );
+                            }
                         default:
                             return resolve(data);
                     }
