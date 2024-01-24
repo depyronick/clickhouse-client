@@ -124,8 +124,10 @@ export class ClickHouseClient {
     ) {
         if (reason && reason.response) {
             this.options.logger.error(reason.response.data);
+            return reason.response.data;
         } else {
             this.options.logger.error(reason);
+            return reason;
         }
     }
 
