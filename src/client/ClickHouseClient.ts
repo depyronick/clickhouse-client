@@ -164,6 +164,7 @@ export class ClickHouseClient {
                 username: this.options.username,
                 password: this.options.password
             },
+            timeout: this.options.httpConfig.timeout,
             httpAgent: this.options.httpConfig.httpAgent,
             httpsAgent: this.options.httpConfig.httpsAgent,
             maxBodyLength: this.options.httpConfig.maxBodyLength,

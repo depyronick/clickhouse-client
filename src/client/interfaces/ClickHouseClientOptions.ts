@@ -86,6 +86,15 @@ export class ClickHouseHttpConfig {
     public maxContentLength?: number = Infinity;
 
     /**
+     * Maximum Content Length
+     * 
+     * Defines the max size of the http response content in bytes allowed in node.js
+     * 
+     * Default: `Infinity`
+     */
+    public timeout?: number = 0;
+
+    /**
      * ClickHouse HTTP Interface Compression Method
      * 
      * Default: NONE
