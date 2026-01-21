@@ -187,6 +187,67 @@ export class ClickHouseClient {
         }
     }
 
+    private _stripLeadingComments(
+        query: string
+    ) {
+        let rest = query;
+
+        while (true) {
+            rest = rest.trimStart();
+
+            if (rest.startsWith('--') || rest.startsWith('#')) {
+                const end = rest.indexOf('\n');
+                if (end === -1) {
+                    return '';
+                }
+                rest = rest.slice(end + 1);
+                continue;
+            }
+
+            if (rest.startsWith('/*')) {
+                const end = rest.indexOf('*/');
+                if (end === -1) {
+                    return '';
+                }
+                rest = rest.slice(end + 2);
+                continue;
+            }
+
+            return rest;
+        }
+    }
+
+    private _getStatementKeyword(
+        query: string
+    ) {
+        const stripped = this._stripLeadingComments(query);
+        const match = stripped.match(/^([A-Za-z]+)/);
+        return match ? match[1].toUpperCase() : undefined;
+    }
+
+    private _shouldAppendFormat(
+        query: string
+    ) {
+        const keyword = this._getStatementKeyword(query);
+        if (!keyword) {
+            return true;
+        }
+
+        switch (keyword) {
+            case 'SELECT':
+            case 'WITH':
+            case 'SHOW':
+            case 'DESCRIBE':
+            case 'DESC':
+            case 'EXPLAIN':
+            case 'CHECK':
+            case 'EXISTS':
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Resolve query format from the query string (if explicitly provided)
      */
@@ -195,6 +256,9 @@ export class ClickHouseClient {
     ) {
         const match = query.match(/\bFORMAT\s+([A-Za-z0-9_]+)/i);
         if (!match) {
+            if (!this._shouldAppendFormat(query)) {
+                return undefined;
+            }
             return this.options.format;
         }
 
@@ -216,7 +280,7 @@ export class ClickHouseClient {
 
         if (!withoutFormat) {
             const hasFormat = /\bFORMAT\b/i.test(query);
-            if (!hasFormat) {
+            if (!hasFormat && this._shouldAppendFormat(query)) {
                 query = `${query.trimEnd()} FORMAT ${this.options.format}`;
             }
         }
