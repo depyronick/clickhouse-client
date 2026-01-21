@@ -20,6 +20,10 @@ import {
 } from 'rxjs';
 
 import {
+    Readable
+} from 'stream';
+
+import {
     ClickHouseConnectionProtocol,
     ClickHouseCompressionMethod,
     ClickHouseDataFormat
@@ -549,6 +553,86 @@ export class ClickHouseClient {
                         });
                 })
                 .catch((reason: AxiosError) => this._handleObservableError(reason, subscriber));
+        });
+    }
+
+    /**
+     * Insert raw payload to table (Observable)
+     * @example insertRaw('db.table', csvString, ClickHouseDataFormat.CSV)
+     */
+    public insertRaw(
+        table: string,
+        data: string | Buffer | Readable,
+        format: ClickHouseDataFormat
+    ) {
+        if (!table || table.trim() == '') {
+            throw new Error("Table name is required");
+        }
+
+        if (!format) {
+            throw new Error("Format is required");
+        }
+
+        const query = `INSERT INTO ${table} FORMAT ${format}`;
+
+        return new Observable<void>(subscriber => {
+            axios
+                .request(
+                    Object.assign(
+                        this._getRequestOptions(query, {}, true),
+                        <AxiosRequestConfig>{
+                            responseType: 'stream',
+                            method: 'POST',
+                            data,
+                            httpAgent: this.options.httpConfig.httpAgent,
+                            httpsAgent: this.options.httpConfig.httpsAgent
+                        }
+                    )
+                )
+                .then((response) => {
+                    const stream: IncomingMessage = response.data;
+
+                    stream
+                        .on('data', () => {
+                            // currently nothing to do here 
+                            // clickhouse http interface returns an empty response 
+                            // with inserts
+                        })
+                        .on('error', (error) => {
+                            subscriber.error(error);
+                        })
+                        .on('end', () => {
+                            subscriber.complete();
+                        });
+                })
+                .catch((reason: AxiosError) => this._handleObservableError(reason, subscriber));
+        });
+    }
+
+    /**
+     * Insert raw payload to table (Promise)
+     */
+    public insertRawPromise(
+        table: string,
+        data: string | Buffer | Readable,
+        format: ClickHouseDataFormat
+    ) {
+        return new Promise<void>((resolve, reject) => {
+            this
+                .insertRaw(table, data, format)
+                .subscribe({
+                    error: (error) => {
+                        return reject(error);
+                    },
+                    next: () => {
+                        // currently nothing to do here 
+                        // clickhouse http interface returns an empty response 
+                        // with inserts
+                    },
+                    complete: () => {
+                        return resolve();
+                    }
+                });
         });
     }
 
