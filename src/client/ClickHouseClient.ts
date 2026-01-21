@@ -154,27 +154,11 @@ export class ClickHouseClient {
     }
 
     /**
-     * Prepare request options
+     * Apply common ClickHouse settings to query params
      */
-    private _getRequestOptions(
-        query: string,
-        queryParams: Record<string, string | number> = {},
-        withoutFormat: boolean = false
-    ): AxiosRequestConfig<any> {
-        let url = this._getUrl();
-
-        if (!withoutFormat) {
-            const hasFormat = /\bFORMAT\b/i.test(query);
-            if (!hasFormat) {
-                query = `${query.trimEnd()} FORMAT ${this.options.format}`;
-            }
-        }
-
-        const params = new URLSearchParams({
-            database: this.options.database,
-            ...Object.fromEntries(Object.entries(queryParams).map(([key, value]) => [`param_${key}`, value]))
-        });
-
+    private _appendSettingsParams(
+        params: URLSearchParams
+    ) {
         if (this.options.httpConfig.compression != ClickHouseCompressionMethod.NONE) {
             params.set('enable_http_compression', '1');
         }
@@ -201,6 +185,52 @@ export class ClickHouseClient {
                 );
             }
         }
+    }
+
+    /**
+     * Resolve query format from the query string (if explicitly provided)
+     */
+    private _resolveQueryFormat(
+        query: string
+    ) {
+        const match = query.match(/\bFORMAT\s+([A-Za-z0-9_]+)/i);
+        if (!match) {
+            return this.options.format;
+        }
+
+        const formatToken = match[1];
+        return Object.values(ClickHouseDataFormat).find(
+            (value) => value.toLowerCase() === formatToken.toLowerCase()
+        );
+    }
+
+    /**
+     * Prepare request options
+     */
+    private _getRequestOptions(
+        query: string,
+        queryParams: Record<string, string | number> = {},
+        withoutFormat: boolean = false
+    ): AxiosRequestConfig<any> {
+        let url = this._getUrl();
+
+        if (!withoutFormat) {
+            const hasFormat = /\bFORMAT\b/i.test(query);
+            if (!hasFormat) {
+                query = `${query.trimEnd()} FORMAT ${this.options.format}`;
+            }
+        }
+
+        const queryParamEntries = Object.entries(queryParams)
+            .filter(([, value]) => value !== undefined && value !== null)
+            .map(([key, value]) => [`param_${key}`, String(value)]);
+
+        const params = new URLSearchParams({
+            database: this.options.database,
+            ...Object.fromEntries(queryParamEntries)
+        });
+
+        this._appendSettingsParams(params);
 
         const requestOptions: AxiosRequestConfig = {
             url,
@@ -273,6 +303,8 @@ export class ClickHouseClient {
         params?: Record<string, string | number>
     ) {
         return new Promise<T[] | string>((resolve, reject) => {
+            const responseFormat = this._resolveQueryFormat(query);
+
             axios
                 .request({
                     ...this._getRequestOptions(query, params),
@@ -280,7 +312,7 @@ export class ClickHouseClient {
                 })
                 .then(response => response.data)
                 .then(data => {
-                    switch (this.options.format) {
+                    switch (responseFormat) {
                         case ClickHouseDataFormat.JSON:
                         case ClickHouseDataFormat.JSONCompact:
                         case ClickHouseDataFormat.JSONCompactStrings:
@@ -318,14 +350,18 @@ export class ClickHouseClient {
         params?: Record<string, string | number>
     ) {
         return new Observable<T | string>(subscriber => {
+            const responseFormat = this._resolveQueryFormat(query);
+            const controller = typeof AbortController === 'function' ? new AbortController() : undefined;
+
             axios
-                .request(
-                    this._getRequestOptions(query, params)
-                )
+                .request({
+                    ...this._getRequestOptions(query, params),
+                    signal: controller?.signal
+                })
                 .then((response) => {
                     const stream: IncomingMessage = response.data;
 
-                    switch (this.options.format) {
+                    switch (responseFormat) {
                         case ClickHouseDataFormat.JSON:
                         case ClickHouseDataFormat.JSONCompact:
                         case ClickHouseDataFormat.JSONCompactStrings:
@@ -365,6 +401,12 @@ export class ClickHouseClient {
                     }
                 })
                 .catch((reason: AxiosError) => this._handleObservableError<T>(reason, subscriber));
+
+            return () => {
+                if (controller) {
+                    controller.abort();
+                }
+            };
         })
     }
 
@@ -483,11 +525,22 @@ export class ClickHouseClient {
         timeout: number = 3000
     ) {
         return new Promise<boolean>((resolve, reject) => {
+            const params = new URLSearchParams();
+            this._appendSettingsParams(params);
+
             axios
-                .get(`${this._getUrl()}/ping`, {
+                .request({
+                    url: `${this._getUrl()}/ping`,
+                    method: 'GET',
+                    params,
+                    auth: {
+                        username: this.options.username,
+                        password: this.options.password
+                    },
                     timeout,
                     httpAgent: this.options.httpConfig.httpAgent,
-                    httpsAgent: this.options.httpConfig.httpsAgent
+                    httpsAgent: this.options.httpConfig.httpsAgent,
+                    headers: this._getHeaders()
                 })
                 .then((response) => {
                     if (response && response.data) {
