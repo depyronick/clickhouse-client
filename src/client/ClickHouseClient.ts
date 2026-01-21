@@ -315,6 +315,9 @@ export class ClickHouseClient {
                                 .on('data', (row) => {
                                     subscriber.next(row.value as T);
                                 })
+                                .on('error', (error) => {
+                                    subscriber.error(error);
+                                })
                                 .on('end', () => {
                                     subscriber.complete();
                                 })
@@ -323,6 +326,9 @@ export class ClickHouseClient {
                             stream
                                 .on('data', (chunk: Buffer) => {
                                     subscriber.next(chunk.toString('utf-8'));
+                                })
+                                .on('error', (error) => {
+                                    subscriber.error(error);
                                 })
                                 .on('end', () => {
                                     subscriber.complete();
