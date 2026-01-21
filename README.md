@@ -23,6 +23,7 @@ $ npm i --save @depyronick/clickhouse-client
   - **[Insert](#insert)**
     - [`ClickHouseClient.insert<T>(table: string, data: T[]): Observable<void>`](#clickhouseclientinsertttable-string-data-t-observablevoid)
     - [`ClickHouseClient.insertPromise<T>(table: string, data: T[]): Promise<void>`](#clickhouseclientinsertpromisettable-string-data-t-promisevoid)
+    - [`ClickHouseClient.insertRaw(table: string, data: string | Buffer | Readable, format: ClickHouseDataFormat): Observable<void>`](#clickhouseclientinsertrawtable-string-data-string--buffer--readable-format-clickhousedataformat-observablevoid)
   - **[Other](#other)**
     - [`ClickHouseClient.ping(timeout: number = 3000): Promise<boolean>`](#clickhouseclientpingtimeout-number--3000-promiseboolean)
 - [Notes](#notes)
@@ -228,6 +229,26 @@ analyticsServer
   .catch((err) => {
     // called when an error occurred during insert
   });
+```
+
+##### `ClickHouseClient.insertRaw(table: string, data: string | Buffer | Readable, format: ClickHouseDataFormat): Observable<void>`
+
+Use `insertRaw` to send pre-formatted data such as CSV or JSONAsString.
+
+```javascript
+// insert a raw JSON object into a single String column
+await analyticsServer.insertRawPromise(
+  'sensor_raw',
+  '{"source":"test","uid":"test"}',
+  ClickHouseDataFormat.JSONAsString
+);
+
+// insert CSV payload
+await analyticsServer.insertRawPromise(
+  'visits',
+  'timestamp,ip,os\n1700000000,127.0.0.1,OSX\n',
+  ClickHouseDataFormat.CSV
+);
 ```
 
 #### Other

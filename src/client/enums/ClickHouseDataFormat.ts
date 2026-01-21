@@ -15,6 +15,7 @@ export enum ClickHouseDataFormat {
     Vertical = 'Vertical',
     TSV = 'TSV',
     JSON = 'JSON',
+    JSONAsString = 'JSONAsString',
     JSONStrings = 'JSONStrings',
     JSONCompact = 'JSONCompact',
     JSONCompactStrings = 'JSONCompactStrings',
