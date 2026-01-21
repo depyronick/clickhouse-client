@@ -141,7 +141,10 @@ export class ClickHouseClient {
         let url = this._getUrl();
 
         if (!withoutFormat) {
-            query = `${query.trimEnd()} FORMAT ${this.options.format}`;
+            const hasFormat = /\bFORMAT\b/i.test(query);
+            if (!hasFormat) {
+                query = `${query.trimEnd()} FORMAT ${this.options.format}`;
+            }
         }
 
         const params = new URLSearchParams({
