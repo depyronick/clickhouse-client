@@ -576,10 +576,15 @@ export class ClickHouseClient {
         const query = `INSERT INTO ${table} FORMAT ${format}`;
 
         return new Observable<void>(subscriber => {
+            const requestOptions = this._getRequestOptions(query, {}, true);
+            if (requestOptions.params instanceof URLSearchParams) {
+                requestOptions.params.set('query', query);
+            }
+
             axios
                 .request(
                     Object.assign(
-                        this._getRequestOptions(query, {}, true),
+                        requestOptions,
                         <AxiosRequestConfig>{
                             responseType: 'stream',
                             method: 'POST',
@@ -673,14 +678,10 @@ export class ClickHouseClient {
         timeout: number = 3000
     ) {
         return new Promise<boolean>((resolve, reject) => {
-            const params = new URLSearchParams();
-            this._appendSettingsParams(params);
-
             axios
                 .request({
                     url: `${this._getUrl()}/ping`,
                     method: 'GET',
-                    params,
                     auth: {
                         username: this.options.username,
                         password: this.options.password
