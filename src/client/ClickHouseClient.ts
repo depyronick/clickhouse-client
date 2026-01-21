@@ -26,7 +26,9 @@ import {
 } from './enums';
 
 import {
-    ClickHouseClientOptions
+    ClickHouseClientOptions,
+    ClickHouseHttpConfig,
+    ClickHouseSettings
 } from './interfaces/ClickHouseClientOptions';
 
 export class ClickHouseClient {
@@ -36,11 +38,32 @@ export class ClickHouseClient {
     constructor(
         private options?: ClickHouseClientOptions
     ) {
-        if (this.options) {
-            this.options = Object.assign(new ClickHouseClientOptions(), this.options);
-        } else {
-            this.options = new ClickHouseClientOptions();
+        const defaults = new ClickHouseClientOptions();
+
+        if (!this.options) {
+            this.options = defaults;
+            return;
         }
+
+        const merged = Object.assign(defaults, this.options);
+
+        if (this.options.settings) {
+            merged.settings = Object.assign(
+                new ClickHouseSettings(),
+                defaults.settings,
+                this.options.settings
+            );
+        }
+
+        if (this.options.httpConfig) {
+            merged.httpConfig = Object.assign(
+                new ClickHouseHttpConfig(),
+                defaults.httpConfig,
+                this.options.httpConfig
+            );
+        }
+
+        this.options = merged;
     }
 
     /**
