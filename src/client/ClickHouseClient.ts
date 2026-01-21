@@ -191,12 +191,14 @@ export class ClickHouseClient {
             httpsAgent: this.options.httpConfig.httpsAgent,
             maxBodyLength: this.options.httpConfig.maxBodyLength,
             maxContentLength: this.options.httpConfig.maxContentLength,
-            transformResponse: (data: IncomingMessage) => {
-                if (this.options.httpConfig.compression == ClickHouseCompressionMethod.BROTLI) {
+            transformResponse: (data: IncomingMessage, headers?: Record<string, string>) => {
+                const encoding = headers?.['content-encoding'] || headers?.['Content-Encoding'];
+
+                if (encoding && /br/i.test(encoding) && data && typeof data.pipe === 'function') {
                     return data.pipe(zlib.createBrotliDecompress());
-                } else {
-                    return data;
                 }
+
+                return data;
             },
             headers: this._getHeaders()
         }
