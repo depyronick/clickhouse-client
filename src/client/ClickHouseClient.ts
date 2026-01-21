@@ -1,7 +1,6 @@
 import axios, {
     AxiosError,
-    AxiosRequestConfig,
-    AxiosRequestHeaders
+    AxiosRequestConfig
 } from 'axios';
 
 import {
@@ -69,7 +68,7 @@ export class ClickHouseClient {
     /**
      * Validate query parameters
      */
-    private _validateQuery<T = any>(
+    private _validateQuery(
         query: string
     ) {
         if (!Object.values(ClickHouseDataFormat).includes(this.options.format)) {
@@ -119,7 +118,7 @@ export class ClickHouseClient {
     /**
      * Handle ClickHouse HTTP errors (for Promise)
      */
-    private _handlePromiseError<T>(
+    private _handlePromiseError(
         reason: AxiosError<any>
     ) {
         if (reason && reason.response) {
@@ -249,7 +248,7 @@ export class ClickHouseClient {
                     }
                 })
                 .catch((reason: AxiosError) => {
-                    return reject(this._handlePromiseError<T>(reason));
+                    return reject(this._handlePromiseError(reason));
                 })
         });
     }
@@ -314,7 +313,7 @@ export class ClickHouseClient {
         query: string,
         params?: Record<string, string | number>
     ) {
-        this._validateQuery<T>(query);
+        this._validateQuery(query);
 
         return this._queryObservable<T>(query, params);
     }
@@ -326,7 +325,7 @@ export class ClickHouseClient {
         query: string,
         params?: Record<string, string | number>
     ) {
-        this._validateQuery<T>(query);
+        this._validateQuery(query);
 
         return this._queryPromise<T>(query, params);
     }
@@ -372,7 +371,7 @@ export class ClickHouseClient {
                     const stream: IncomingMessage = response.data;
 
                     stream
-                        .on('data', (data) => {
+                        .on('data', () => {
                             // currently nothing to do here 
                             // clickhouse http interface returns an empty response 
                             // with inserts
@@ -401,7 +400,7 @@ export class ClickHouseClient {
                     error: (error) => {
                         return reject(error);
                     },
-                    next: (row) => {
+                    next: () => {
                         // currently nothing to do here 
                         // clickhouse http interface returns an empty response 
                         // with inserts
