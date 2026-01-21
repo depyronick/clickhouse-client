@@ -258,9 +258,14 @@ export class ClickHouseClient {
                         case ClickHouseDataFormat.JSONCompactStrings:
                         case ClickHouseDataFormat.JSONStrings:
                             if(data) {
-                                return resolve(
-                                    JSON.parse(data).data as T[]
-                                );
+                                try {
+                                    return resolve(
+                                        JSON.parse(data).data as T[]
+                                    );
+                                } catch (error) {
+                                    const message = error instanceof Error ? error.message : String(error);
+                                    return reject(new Error(`Failed to parse JSON response: ${message}`));
+                                }
                             } else {
                                 return resolve(
                                     [] as T[]
