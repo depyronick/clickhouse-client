@@ -22,7 +22,11 @@ describe('ClickHouseClient (e2e)', () => {
     const num = 1
 
     // Act
-    const [result] = await client.queryPromise<BasicQueryResult>(`SELECT ${num} as num`);
+    const results = await client.queryPromise<BasicQueryResult>(`SELECT ${num} as num`);
+    if (typeof results === 'string') {
+      throw new Error('Expected JSON response');
+    }
+    const [result] = results;
 
     // Assert
     expect(result).toBeDefined();
@@ -34,10 +38,14 @@ describe('ClickHouseClient (e2e)', () => {
     const param = 7
 
     // Act
-    const [result] = await client.queryPromise<BasicQueryResult>(
+    const results = await client.queryPromise<BasicQueryResult>(
       'SELECT {param:UInt8} as num',
       { param }
     );
+    if (typeof results === 'string') {
+      throw new Error('Expected JSON response');
+    }
+    const [result] = results;
 
     // Assert
     expect(result).toBeDefined();
