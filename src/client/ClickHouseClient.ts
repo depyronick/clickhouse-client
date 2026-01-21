@@ -150,7 +150,30 @@ export class ClickHouseClient {
         });
 
         if (this.options.httpConfig.compression != ClickHouseCompressionMethod.NONE) {
-            params['enable_http_compression'] = 1;
+            params.set('enable_http_compression', '1');
+        }
+
+        if (this.options.settings) {
+            if (this.options.settings.send_progress_in_http_headers !== undefined) {
+                params.set(
+                    'send_progress_in_http_headers',
+                    String(this.options.settings.send_progress_in_http_headers)
+                );
+            }
+
+            if (this.options.settings.wait_end_of_query !== undefined) {
+                params.set(
+                    'wait_end_of_query',
+                    String(this.options.settings.wait_end_of_query)
+                );
+            }
+
+            if (this.options.settings.buffer_size !== undefined) {
+                params.set(
+                    'buffer_size',
+                    String(this.options.settings.buffer_size)
+                );
+            }
         }
 
         const requestOptions: AxiosRequestConfig = {
